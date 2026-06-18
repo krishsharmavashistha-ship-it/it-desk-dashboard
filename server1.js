@@ -76,9 +76,12 @@ app.post('/ai/summarize', async (req, res) => {
       })
     });
     const data = await response.json();
+    console.log("Anthropic response:", JSON.stringify(data));
+    if (data.error) return res.status(500).json({ error: data.error.message });
     res.json({ summary: data.content[0].text });
   } catch (e) {
-    res.status(500).json({ error: 'AI failed' });
+    console.error("Summarize error:", e);
+    res.status(500).json({ error: e.message });
   }
 });
 
@@ -110,34 +113,6 @@ app.patch('/tickets/:id', async (req, res) => {
   await Ticket.updateOne({ _id: req.params.id }, { ...updateFields, ...(logEntry.length > 0 ? { $push: { activityLog: { $each: logEntry } } } : {}) });
   res.json(await Ticket.findById(req.params.id));
 });
-
-app.post('/ai/summarize', async (req, res) => {
-  try {
-    const { ticket } = req.body;
-    const comments = ticket.comments && ticket.comments.length > 0
-      ? ticket.comments.map(c => `${c.author}: ${c.text}`).join('\n')
-      : 'No comments yet.';
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 300,
-        messages: [{ role: 'user', content: `Summarize this IT ticket and suggest a fix in 3-4 sentences. Ticket: ${ticket.title}. Description: ${ticket.description || 'N/A'}. Priority: ${ticket.priority}. Category: ${ticket.category}.` }]
-      })
-    });
-    const data = await response.json();
-    console.log("Anthropic response:", JSON.stringify(data));
-    if (data.error) return res.status(500).json({ error: data.error.message });
-    res.json({ summary: data.content[0].text });
-  } catch (e) {
-    console.error("Summarize error:", e);
-    res.status(500).json({ error: e.message });
-  }
 
 app.delete('/tickets/:id/comments/:commentIndex', async (req, res) => {
   const ticket = await Ticket.findById(req.params.id);
