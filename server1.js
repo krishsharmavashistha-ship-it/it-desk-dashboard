@@ -134,7 +134,7 @@ app.post('/ai/summarize', async (req, res) => {
     console.log("Anthropic response:", JSON.stringify(data));
     if (data.error) return res.status(500).json({ error: data.error.message });
     res.json({ summary: data.content[0].text });
-  } } catch (e) {
+  } catch (e) {
     console.error("Summarize error:", e);
     res.status(500).json({ error: e.message });
   }
