@@ -278,7 +278,7 @@ export default function App() {
   };
 
   const fetchTickets = async () => {
-    const res = await fetch("http://localhost:5000/tickets?t=" + Date.now());
+    const res = await fetch("https://it-desk-dashboard-server.onrender.com/tickets?t=" + Date.now());
     const data = await res.json();
     setTickets(data);
   };
@@ -324,7 +324,7 @@ export default function App() {
     if (!form.description && !form.title) return showToast("⚠️ Enter a title or description first!", "#fb8c00");
     setAiLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/ai/categorize", {
+      const res = await fetch("https://it-desk-dashboard-server.onrender.com/ai/categorize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: form.title, description: form.description }),
@@ -338,7 +338,7 @@ export default function App() {
 
   const aiSummarize = async (ticket) => {
     try {
-      const res = await fetch("http://localhost:5000/ai/summarize", {
+      const res = await fetch("https://it-desk-dashboard-server.onrender.com/ai/summarize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ticket }),
@@ -350,37 +350,37 @@ export default function App() {
 
   const handleSubmit = async () => {
     if (!form.title) return;
-    await fetch("http://localhost:5000/tickets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+    await fetch("https://it-desk-dashboard-server.onrender.com/tickets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
     setForm({ title: "", description: "", priority: "Low", category: "Software", assignee: "Unassigned" });
     fetchTickets();
     showToast("✅ Ticket submitted!");
   };
 
   const updateStatus = (id, status) => {
-    fetch(`http://localhost:5000/tickets/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) })
+    fetch(`https://it-desk-dashboard-server.onrender.com/tickets/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) })
       .then(() => { fetchTickets(); showToast(`✅ Moved to ${status}!`, "#43a047"); });
   };
 
   const deleteTicket = (id) => {
     if (!window.confirm("Delete this ticket?")) return;
-    fetch(`http://localhost:5000/tickets/${id}`, { method: "DELETE" }).then(() => { fetchTickets(); showToast("🗑 Deleted!", "#e53935"); });
+    fetch(`https://it-desk-dashboard-server.onrender.com/tickets/${id}`, { method: "DELETE" }).then(() => { fetchTickets(); showToast("🗑 Deleted!", "#e53935"); });
   };
 
   const addComment = async (id, text, author) => {
-    await fetch(`http://localhost:5000/tickets/${id}/comments`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, author }) });
+    await fetch(`https://it-desk-dashboard-server.onrender.com/tickets/${id}/comments`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, author }) });
     fetchTickets();
     showToast("💬 Comment added!");
   };
 
   const deleteComment = async (ticketId, commentIndex) => {
-    await fetch(`http://localhost:5000/tickets/${ticketId}/comments/${commentIndex}`, { method: "DELETE" });
+    await fetch(`https://it-desk-dashboard-server.onrender.com/tickets/${ticketId}/comments/${commentIndex}`, { method: "DELETE" });
     fetchTickets();
   };
 
   const startEdit = (t) => { setEditId(t._id); setEditForm({ title: t.title, description: t.description, priority: t.priority, category: t.category, assignee: t.assignee || "Unassigned" }); };
 
   const saveEdit = async () => {
-    await fetch(`http://localhost:5000/tickets/${editId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(editForm) });
+    await fetch(`https://it-desk-dashboard-server.onrender.com/tickets/${editId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(editForm) });
     setEditId(null); fetchTickets(); showToast("✏️ Updated!");
   };
 
